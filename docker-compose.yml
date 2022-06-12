@@ -1,0 +1,34 @@
+version: "3"
+services:
+  redis:
+    build: ./redis
+    networks:
+      - backend
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+  nginx:
+    build: ./reverse_proxy
+    networks:
+      - backend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+  gs_calc:
+    build: ./gs_calc
+    depends_on:
+      - redis
+      - nginx
+    networks:
+      - backend
+    restart: unless-stopped
+  home:
+    build: ./main_page
+    depends_on:
+      - nginx
+      - gs_calc
+    networks:
+      - backend
+    restart: unless-stopped
+networks:
+  backend:
